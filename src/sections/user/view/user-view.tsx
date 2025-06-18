@@ -26,6 +26,7 @@ import { UserEditModal } from '../user-edit-modal';
 import { TableEmptyRows } from '../table-empty-rows';
 import { UserTableToolbar } from '../user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
+import { TableLoading } from 'src/components/table-loading';
 
 import type { UserProps } from '../user-table-row';
 
@@ -127,27 +128,32 @@ export function UserView() {
                 ]}
               />
               <TableBody>
-                {dataFiltered
-                  .slice(
-                    table.page * table.rowsPerPage,
-                    table.page * table.rowsPerPage + table.rowsPerPage
-                  )
-                  .map((row) => (
-                    <UserTableRow
-                      key={row.id}
-                      row={row}
-                      selected={table.selected.includes(row.id)}
-                      onSelectRow={() => table.onSelectRow(row.id)}
-                      onEditRow={() => handleOpenModal(row)}
+                {isLoading ? (
+                  <TableLoading columnCount={9} />
+                ) : (
+                  <>
+                    {dataFiltered
+                      .slice(
+                        table.page * table.rowsPerPage,
+                        table.page * table.rowsPerPage + table.rowsPerPage
+                      )
+                      .map((row) => (
+                        <UserTableRow
+                          key={row.id}
+                          row={row}
+                          selected={table.selected.includes(row.id)}
+                          onSelectRow={() => table.onSelectRow(row.id)}
+                        />
+                      ))}
+
+                    <TableEmptyRows
+                      height={68}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, users.length)}
                     />
-                  ))}
 
-                <TableEmptyRows
-                  height={68}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, users.length)}
-                />
-
-                {notFound && <TableNoData searchQuery={filterName} />}
+                    {notFound && <TableNoData searchQuery={filterName} />}
+                  </>
+                )}
               </TableBody>
             </Table>
           </TableContainer>

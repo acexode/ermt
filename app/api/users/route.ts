@@ -6,7 +6,7 @@ import { prisma } from 'src/lib/prisma/client';
 import { handleError } from 'src/lib/utils/error';
 import { requireAuth } from 'src/lib/utils/auth';
 
-import { authOptions } from '../auth/[...nextauth]/route';
+import { authOptions } from 'src/lib/auth';
 
 interface SessionUser {
   id: string;

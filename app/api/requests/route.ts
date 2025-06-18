@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 
 import { prisma } from 'src/lib/prisma/client';
 
-import { authOptions } from '../auth/[...nextauth]/route';
+import { authOptions } from 'src/lib/auth';
 
 interface SessionUser {
   id: string;

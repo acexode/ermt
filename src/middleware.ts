@@ -6,12 +6,12 @@ import { NextResponse } from 'next/server';
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request });
   const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
-  const isDashboardPage = request.nextUrl.pathname.startsWith('/dashboard');
+  const isDashboardPage = request.nextUrl.pathname.startsWith('/home');
 
   // If trying to access auth pages while logged in, redirect to dashboard
   if (isAuthPage) {
     if (token) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+      return NextResponse.redirect(new URL('/home', request.url));
     }
     return NextResponse.next();
   }

@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { prisma } from 'src/lib/prisma/client';
 import { handleError } from 'src/lib/utils/error';
-import { authOptions } from 'app/api/auth/[...nextauth]/route';
+import { authOptions } from 'src/lib/auth';
 
 // Extend the session type to include user ID and role
 declare module 'next-auth' {

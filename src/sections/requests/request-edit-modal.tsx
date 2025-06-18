@@ -295,8 +295,12 @@ export function RequestEditModal({ open, onClose, request, providers, department
           <Button onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" variant="contained">
-            {request ? 'Update' : 'Create'}
+          <Button 
+            type="submit" 
+            variant="contained"
+            disabled={createMutation.isPending || updateMutation.isPending}
+          >
+            {createMutation.isPending || updateMutation.isPending ? 'Loading...' : request ? 'Update' : 'Create'}
           </Button>
         </DialogActions>
       </form>

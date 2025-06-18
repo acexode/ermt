@@ -141,31 +141,7 @@ export function SignInView() {
         </Typography>
       </Box>
       {renderForm}
-      <Divider sx={{ my: 3, '&::before, &::after': { borderTopStyle: 'dashed' } }}>
-        <Typography
-          variant="overline"
-          sx={{ color: 'text.secondary', fontWeight: 'fontWeightMedium' }}
-        >
-          OR
-        </Typography>
-      </Divider>
-      <Box
-        sx={{
-          gap: 1,
-          display: 'flex',
-          justifyContent: 'center',
-        }}
-      >
-        <IconButton color="inherit">
-          <Iconify width={22} icon="socials:google" />
-        </IconButton>
-        <IconButton color="inherit">
-          <Iconify width={22} icon="socials:github" />
-        </IconButton>
-        <IconButton color="inherit">
-          <Iconify width={22} icon="socials:twitter" />
-        </IconButton>
-      </Box>
+
     </>
   );
 }

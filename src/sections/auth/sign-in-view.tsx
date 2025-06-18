@@ -42,21 +42,20 @@ export function SignInView() {
       const result = await signIn('credentials', {
         email,
         password,
-        redirect: false,
+        redirect: true,
+        callbackUrl: callbackUrl,
       });
 
+      // If we get here, there was an error
       if (result?.error) {
         setError('Invalid email or password');
-        return;
+        setIsLoading(false);
       }
-
-      router.push(callbackUrl);
     } catch (err) {
       setError('An error occurred. Please try again.');
-    } finally {
       setIsLoading(false);
     }
-  }, [router, callbackUrl]);
+  }, [callbackUrl]);
 
   const renderForm = (
     <Box component="form" onSubmit={handleSignIn}>

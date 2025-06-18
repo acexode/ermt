@@ -18,6 +18,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { TableLoading } from 'src/components/table-loading';
 
 import { TableNoData } from '../table-no-data';
 import { UserTableRow } from '../user-table-row';
@@ -26,7 +27,6 @@ import { UserEditModal } from '../user-edit-modal';
 import { TableEmptyRows } from '../table-empty-rows';
 import { UserTableToolbar } from '../user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
-import { TableLoading } from 'src/components/table-loading';
 
 import type { UserProps } from '../user-table-row';
 

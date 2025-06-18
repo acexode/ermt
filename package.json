@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "start": "next start",
+     "postinstall": "prisma generate",
     "build": "next build",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",

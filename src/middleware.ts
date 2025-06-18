@@ -5,8 +5,14 @@ import { NextResponse } from 'next/server';
 
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request });
-  const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
-  const isDashboardPage = request.nextUrl.pathname.startsWith('/home');
+  const isAuthPage = request.nextUrl.pathname.startsWith('/sign-in') || request.nextUrl.pathname.startsWith('/sign-up');
+  const isDashboardPage = request.nextUrl.pathname.startsWith('/home') || 
+                         request.nextUrl.pathname.startsWith('/providers') ||
+                         request.nextUrl.pathname.startsWith('/departments') ||
+                         request.nextUrl.pathname.startsWith('/sections') ||
+                         request.nextUrl.pathname.startsWith('/disciplines') ||
+                         request.nextUrl.pathname.startsWith('/requests') ||
+                         request.nextUrl.pathname.startsWith('/user');
 
   // If trying to access auth pages while logged in, redirect to dashboard
   if (isAuthPage) {
@@ -19,7 +25,7 @@ export async function middleware(request: NextRequest) {
   // If trying to access dashboard without being logged in, redirect to sign in
   if (isDashboardPage) {
     if (!token) {
-      const redirectUrl = new URL('/auth/sign-in', request.url);
+      const redirectUrl = new URL('/sign-in', request.url);
       redirectUrl.searchParams.set('callbackUrl', request.url);
       return NextResponse.redirect(redirectUrl);
     }
@@ -30,8 +36,15 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
-    '/auth/:path*',
+    '/home/:path*',
+    '/providers/:path*',
+    '/departments/:path*',
+    '/sections/:path*',
+    '/disciplines/:path*',
+    '/requests/:path*',
+    '/user/:path*',
+    '/sign-in',
+    '/sign-up',
     '/api/:path*',
   ],
 }; 

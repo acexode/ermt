@@ -1,20 +1,51 @@
-import { getServerSession } from 'next-auth';
+import { cookies } from 'next/headers';
+import { NextRequest } from 'next/server';
 
-import { authOptions } from 'src/lib/auth';
-
+import { verifyToken, type AuthUser } from 'src/lib/auth-utils';
 
 interface SessionUser {
   id: string;
   role: string;
 }
 
-export async function getCurrentUser() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return null;
-  return session.user as SessionUser;
+export async function getCurrentUser(): Promise<SessionUser | null> {
+  const cookieStore = await cookies();
+  const authToken = cookieStore.get('auth-token')?.value;
+
+  if (!authToken) {
+    return null;
+  }
+
+  const payload = verifyToken(authToken);
+  if (!payload) {
+    return null;
+  }
+
+  return {
+    id: payload.userId,
+    role: payload.role,
+  };
 }
 
-export async function requireAuth() {
+export async function getCurrentUserFromRequest(request: NextRequest): Promise<SessionUser | null> {
+  const authToken = request.cookies.get('auth-token')?.value;
+
+  if (!authToken) {
+    return null;
+  }
+
+  const payload = verifyToken(authToken);
+  if (!payload) {
+    return null;
+  }
+
+  return {
+    id: payload.userId,
+    role: payload.role,
+  };
+}
+
+export async function requireAuth(): Promise<SessionUser> {
   const user = await getCurrentUser();
   if (!user) {
     throw new Error('Unauthorized');
@@ -22,7 +53,15 @@ export async function requireAuth() {
   return user;
 }
 
-export async function requireSuperAdmin() {
+export async function requireAuthFromRequest(request: NextRequest): Promise<SessionUser> {
+  const user = await getCurrentUserFromRequest(request);
+  if (!user) {
+    throw new Error('Unauthorized');
+  }
+  return user;
+}
+
+export async function requireSuperAdmin(): Promise<SessionUser> {
   const user = await requireAuth();
   if (user.role !== 'SUPERADMIN') {
     throw new Error('Unauthorized');
@@ -30,7 +69,7 @@ export async function requireSuperAdmin() {
   return user;
 }
 
-export async function requireAdmin() {
+export async function requireAdmin(): Promise<SessionUser> {
   const user = await requireAuth();
   if (user.role !== 'SUPERADMIN' && user.role !== 'ADMIN') {
     throw new Error('Unauthorized');

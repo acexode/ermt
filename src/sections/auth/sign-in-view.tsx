@@ -1,6 +1,5 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
 import { useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 
@@ -16,6 +15,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { useRouter } from 'src/routes/hooks';
 
+import { useCustomAuth } from 'src/context/custom-auth-context';
+
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
@@ -24,6 +25,7 @@ export function SignInView() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/home';
+  const { login } = useCustomAuth();
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -41,31 +43,21 @@ export function SignInView() {
     console.log('Attempting sign in with:', { email, callbackUrl });
 
     try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-        callbackUrl: callbackUrl,
-      });
+      const result = await login(email, password);
 
-      console.log('Sign in result:', result);
-
-      if (result?.error) {
-        setError('Invalid email or password');
-        setIsLoading(false);
-        return;
-      }
-
-      if (result?.ok) {
+      if (result.success) {
         console.log('Sign in successful, redirecting to:', callbackUrl);
         router.push(callbackUrl);
+      } else {
+        setError(result.error || 'Sign in failed');
+        setIsLoading(false);
       }
     } catch (err) {
       console.error('Sign in error:', err);
       setError('An error occurred. Please try again.');
       setIsLoading(false);
     }
-  }, [router, callbackUrl]);
+  }, [login, router, callbackUrl]);
 
   const renderForm = (
     <Box component="form" onSubmit={handleSignIn}>

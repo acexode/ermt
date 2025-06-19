@@ -12,9 +12,9 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-import { useAuth } from 'src/context/auth-context';
 import { handleApiResponse } from 'src/lib/utils/api';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useCustomAuth } from 'src/context/custom-auth-context';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -37,7 +37,7 @@ export function UserView() {
   const [filterName, setFilterName] = useState('');
   const [openModal, setOpenModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserProps | null>(null);
-  const { user: currentUser } = useAuth();
+  const { user: currentUser } = useCustomAuth();
 
   const { data: users = [], isLoading } = useQuery<UserProps[]>({
     queryKey: ['users'],

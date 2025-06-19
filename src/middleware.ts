@@ -1,10 +1,12 @@
 import type { NextRequest } from 'next/server';
 
-import { getToken } from 'next-auth/jwt';
 import { NextResponse } from 'next/server';
 
+import { verifyToken } from 'src/lib/auth-utils';
+
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request });
+  // Get the auth token from cookies
+  const authToken = request.cookies.get('auth-token')?.value;
   
   // Only protect dashboard routes
   const isDashboardPage = request.nextUrl.pathname.startsWith('/home') || 
@@ -16,10 +18,20 @@ export async function middleware(request: NextRequest) {
                          request.nextUrl.pathname.startsWith('/user');
 
   // If trying to access dashboard without being logged in, redirect to sign in
-  if (isDashboardPage && !token) {
-    const redirectUrl = new URL('/sign-in', request.url);
-    redirectUrl.searchParams.set('callbackUrl', request.url);
-    return NextResponse.redirect(redirectUrl);
+  if (isDashboardPage) {
+    if (!authToken) {
+      const redirectUrl = new URL('/sign-in', request.url);
+      redirectUrl.searchParams.set('callbackUrl', request.url);
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    // Verify the token
+    const payload = verifyToken(authToken);
+    if (!payload) {
+      const redirectUrl = new URL('/sign-in', request.url);
+      redirectUrl.searchParams.set('callbackUrl', request.url);
+      return NextResponse.redirect(redirectUrl);
+    }
   }
 
   return NextResponse.next();

@@ -13,7 +13,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
 import { formatDate } from 'src/lib/utils/format';
-import { useAuth } from 'src/context/auth-context';
+import { useCustomAuth } from 'src/context/custom-auth-context';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -53,7 +53,7 @@ interface Props {
 }
 
 export function UserTableRow({ row, selected, onSelectRow }: Props) {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser } = useCustomAuth();
   const { name, email, role, provider, department, section, discipline, createdAt } = row;
 
   const [openPopover, setOpenPopover] = useState<HTMLElement | null>(null);

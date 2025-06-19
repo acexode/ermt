@@ -1,12 +1,9 @@
 import { hash } from 'bcryptjs';
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 
 import { prisma } from 'src/lib/prisma/client';
 import { handleError } from 'src/lib/utils/error';
-import { requireAuth } from 'src/lib/utils/auth';
-
-import { authOptions } from 'src/lib/auth';
+import { requireAuth, requireSuperAdmin } from 'src/lib/utils/auth';
 
 interface SessionUser {
   id: string;
@@ -63,17 +60,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const sessionUser = session.user as SessionUser;
-    
-    if (sessionUser.role !== 'SUPERADMIN') {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+    const user = await requireSuperAdmin();
 
     const body = await req.json();
     const { email, name, password, role, providerId, departmentId, sectionId, disciplineId } = body;
@@ -92,7 +79,7 @@ export async function POST(req: Request) {
 
     const hashedPassword = await hash(password, 12);
 
-    const user = await prisma.user.create({
+    const newUser = await prisma.user.create({
       data: {
         email,
         name,
@@ -106,10 +93,10 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
+      id: newUser.id,
+      email: newUser.email,
+      name: newUser.name,
+      role: newUser.role,
     });
   } catch (error) {
     console.error('[USERS_POST]', error);

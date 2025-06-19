@@ -1,15 +1,8 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { Prisma } from '@prisma/client';
 
 import { prisma } from 'src/lib/prisma/client';
-
-import { authOptions } from 'src/lib/auth';
-
-interface SessionUser {
-  id: string;
-  role: string;
-}
+import { requireAuth } from 'src/lib/utils/auth';
 
 type RequestStatus = 'PENDING_SUPERADMIN_REVIEW' | 'PENDING_ADMIN_REVIEW' | 'ASSIGNED_TO_ENGINEER' | 
   'IN_PROGRESS' | 'COMPLETED_BY_ENGINEER' | 'PENDING_MATRIX_APPROVAL' | 'APPROVED' | 'REJECTED';
@@ -28,13 +21,7 @@ interface RequestWithUser {
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const user = session.user as SessionUser;
+    const user = await requireAuth();
     let requests;
     
     if (user.role === 'SUPERADMIN') {
@@ -92,13 +79,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const user = session.user as SessionUser;
+    const user = await requireAuth();
     const body = await req.json();
     const {
       title,
@@ -176,12 +157,7 @@ export async function POST(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const user = session.user as SessionUser;
+    const user = await requireAuth();
     const body = await req.json();
     const {
       id,

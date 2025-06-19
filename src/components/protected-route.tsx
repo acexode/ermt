@@ -2,29 +2,28 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
+
+import { useCustomAuth } from 'src/context/custom-auth-context';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { data: session, status } = useSession();
+  const { user, loading } = useCustomAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'loading') return; // Still loading
-
-    if (!session) {
+    if (!loading && !user) {
       router.push('/sign-in');
     }
-  }, [session, status, router]);
+  }, [user, loading, router]);
 
   // Show loading spinner while checking authentication
-  if (status === 'loading') {
+  if (loading) {
     return (
       <Box
         sx={{
@@ -40,7 +39,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   // Don't render anything if not authenticated (will redirect)
-  if (!session) {
+  if (!user) {
     return null;
   }
 

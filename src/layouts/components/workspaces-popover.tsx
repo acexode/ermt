@@ -11,9 +11,10 @@ import MenuList from '@mui/material/MenuList';
 import ButtonBase from '@mui/material/ButtonBase';
 import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 
+import { useCustomAuth } from 'src/context/custom-auth-context';
+
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
-import { useAuth } from 'src/context/auth-context';
 
 // ----------------------------------------------------------------------
 
@@ -28,7 +29,7 @@ export type WorkspacesPopoverProps = ButtonBaseProps & {
 
 export function WorkspacesPopover({ data = [], sx, ...other }: WorkspacesPopoverProps) {
   const [workspace, setWorkspace] = useState(data[0]);
-  const { user } = useAuth();
+  const { user } = useCustomAuth();
   console.log(user);
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
 

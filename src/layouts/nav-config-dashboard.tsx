@@ -1,4 +1,4 @@
-import { useAuth } from 'src/context/auth-context';
+import { useCustomAuth } from 'src/context/custom-auth-context';
 
 import { SvgColor } from 'src/components/svg-color';
 
@@ -15,7 +15,7 @@ export type NavItem = {
 };
 
 export const useNavData = () => {
-  const { user } = useAuth();
+  const { user } = useCustomAuth();
   const isAdmin = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN';
 
   const navItems: NavItem[] = [

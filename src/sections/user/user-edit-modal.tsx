@@ -16,8 +16,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import CircularProgress from '@mui/material/CircularProgress';
 
-import { useAuth } from 'src/context/auth-context';
 import { handleApiResponse } from 'src/lib/utils/api';
+import { useCustomAuth } from 'src/context/custom-auth-context';
 
 import type { UserProps } from './user-table-row';
 
@@ -53,7 +53,7 @@ interface Props {
 
 export function UserEditModal({ open, onClose, user, onSuccess }: Props) {
   const queryClient = useQueryClient();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser } = useCustomAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -199,36 +199,31 @@ export function UserEditModal({ open, onClose, user, onSuccess }: Props) {
                   fullWidth
                   name="password"
                   label="Password"
-                  type="password"
                   required
+                  type="password"
                 />
               )}
 
-              <TextField
-                select
-                fullWidth
-                label="Role"
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                disabled={!isSuperAdmin}
-                required
-              >
-                <MenuItem value="USER">User</MenuItem>
-                <MenuItem value="ADMIN">Admin</MenuItem>
-                <MenuItem value="SUPERADMIN">Super Admin</MenuItem>
-              </TextField>
+              {isSuperAdmin && (
+                <TextField
+                  select
+                  fullWidth
+                  label="Role"
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                >
+                  <MenuItem value="USER">User</MenuItem>
+                  <MenuItem value="ADMIN">Admin</MenuItem>
+                  <MenuItem value="SUPERADMIN">Super Admin</MenuItem>
+                </TextField>
+              )}
 
               <TextField
                 select
                 fullWidth
                 label="Provider"
                 value={selectedProvider}
-                onChange={(e) => {
-                  setSelectedProvider(e.target.value);
-                  setSelectedDepartment('');
-                  setSelectedSection('');
-                  setSelectedDiscipline('');
-                }}
+                onChange={(e) => setSelectedProvider(e.target.value)}
                 required
               >
                 {providers.map((provider) => (
@@ -243,11 +238,7 @@ export function UserEditModal({ open, onClose, user, onSuccess }: Props) {
                 fullWidth
                 label="Department (Optional)"
                 value={selectedDepartment}
-                onChange={(e) => {
-                  setSelectedDepartment(e.target.value);
-                  setSelectedSection('');
-                  setSelectedDiscipline('');
-                }}
+                onChange={(e) => setSelectedDepartment(e.target.value)}
               >
                 <MenuItem value="">
                   <em>None</em>
@@ -264,10 +255,7 @@ export function UserEditModal({ open, onClose, user, onSuccess }: Props) {
                 fullWidth
                 label="Section (Optional)"
                 value={selectedSection}
-                onChange={(e) => {
-                  setSelectedSection(e.target.value);
-                  setSelectedDiscipline('');
-                }}
+                onChange={(e) => setSelectedSection(e.target.value)}
                 disabled={!selectedDepartment}
               >
                 <MenuItem value="">
@@ -299,21 +287,21 @@ export function UserEditModal({ open, onClose, user, onSuccess }: Props) {
               </TextField>
             </Stack>
 
-            <DialogActions sx={{ mt: 3 }}>
-              <Button variant="outlined" color="inherit" onClick={onClose}>
-                Cancel
-              </Button>
-
+            <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
               <Button
+                fullWidth
                 type="submit"
                 variant="contained"
-                color="inherit"
                 disabled={isLoading}
-                startIcon={isLoading && <CircularProgress size={20} />}
+                startIcon={isLoading ? <CircularProgress size={20} /> : null}
               >
-                {isEdit ? 'Save Changes' : 'Create User'}
+                {isLoading ? 'Saving...' : (isEdit ? 'Update User' : 'Create User')}
               </Button>
-            </DialogActions>
+
+              <Button fullWidth variant="outlined" onClick={onClose}>
+                Cancel
+              </Button>
+            </Stack>
           </Box>
         </Card>
       </DialogContent>

@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+
 import { CONFIG } from 'src/config-global';
 
 import { SignUpView } from 'src/sections/auth';
@@ -9,7 +11,9 @@ export default function Page() {
     <>
       <title>{`Sign up - ${CONFIG.appName}`}</title>
 
-      <SignUpView />
+      <Suspense fallback={<div>Loading...</div>}>
+        <SignUpView />
+      </Suspense>
     </>
   );
 } 

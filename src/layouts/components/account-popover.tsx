@@ -2,7 +2,6 @@
 
 import type { IconButtonProps } from '@mui/material/IconButton';
 
-import { signOut } from 'next-auth/react';
 import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
@@ -18,7 +17,7 @@ import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 import { useRouter, usePathname } from 'src/routes/hooks';
 
 import { _myAccount } from 'src/_mock';
-import { useAuth } from 'src/context/auth-context';
+import { useCustomAuth } from 'src/context/custom-auth-context';
 
 // ----------------------------------------------------------------------
 
@@ -33,7 +32,7 @@ export type AccountPopoverProps = IconButtonProps & {
 
 export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps) {
   const router = useRouter();
-  const { user} = useAuth();
+  const { user, logout } = useCustomAuth();
 
   const pathname = usePathname();
 
@@ -54,6 +53,10 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
     },
     [handleClosePopover, router]
   );
+
+  const handleLogout = useCallback(async () => {
+    await logout();
+  }, [logout]);
 
   return (
     <>
@@ -139,7 +142,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
             color="error" 
             size="medium" 
             variant="text"
-            onClick={() => signOut({ callbackUrl: '/sign-in' })}
+            onClick={handleLogout}
           >
             Logout
           </Button>

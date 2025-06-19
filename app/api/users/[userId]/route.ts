@@ -1,23 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { z } from 'zod';
 
 import { prisma } from 'src/lib/prisma/client';
 import { handleError } from 'src/lib/utils/error';
-import { authOptions } from 'src/lib/auth';
-
-// Extend the session type to include user ID and role
-declare module 'next-auth' {
-  interface Session {
-    user: {
-      id: string;
-      role: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-    }
-  }
-}
+import { requireAuth } from 'src/lib/utils/auth';
 
 const updateUserSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -34,14 +20,10 @@ export async function PATCH(
   { params }: { params: { userId: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+    const user = await requireAuth();
 
     // Only allow users to edit their own profile or superadmins to edit any profile
-    if (session.user.role !== 'SUPERADMIN' && session.user.id !== params.userId) {
+    if (user.role !== 'SUPERADMIN' && user.id !== params.userId) {
       return new NextResponse('Forbidden', { status: 403 });
     }
 

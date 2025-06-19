@@ -27,40 +27,48 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          console.log('Missing credentials');
           throw new Error('Invalid credentials');
         }
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email
+        try {
+          const user = await prisma.user.findUnique({
+            where: {
+              email: credentials.email
+            }
+          });
+
+          if (!user || !user?.password) {
+            console.log('User not found or no password');
+            throw new Error('Invalid credentials');
           }
-        });
 
-        if (!user || !user?.password) {
+          const isCorrectPassword = await compare(
+            credentials.password,
+            user.password
+          );
+
+          if (!isCorrectPassword) {
+            console.log('Invalid password');
+            throw new Error('Invalid credentials');
+          }
+
+          console.log('User authenticated successfully:', user.email);
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+          };
+        } catch (error) {
+          console.error('Authentication error:', error);
           throw new Error('Invalid credentials');
         }
-
-        const isCorrectPassword = await compare(
-          credentials.password,
-          user.password
-        );
-
-        if (!isCorrectPassword) {
-          throw new Error('Invalid credentials');
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        };
       }
     })
   ],
   callbacks: {
     async jwt({ token, user }) {
-      console.log('jwt', token, user);
       if (user) {
         return {
           ...token,
@@ -71,7 +79,6 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      console.log('session', session);
       return {
         ...session,
         user: {
@@ -90,4 +97,15 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === 'development',
+  logger: {
+    error(code, ...message) {
+      console.error('NextAuth error:', code, ...message);
+    },
+    warn(code, ...message) {
+      console.warn('NextAuth warning:', code, ...message);
+    },
+    debug(code, ...message) {
+      console.log('NextAuth debug:', code, ...message);
+    },
+  },
 }; 
